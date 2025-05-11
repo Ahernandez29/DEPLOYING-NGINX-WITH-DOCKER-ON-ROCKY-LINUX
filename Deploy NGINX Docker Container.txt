@@ -1,0 +1,62 @@
+---------------------------------------------------------------------------------------
+		DEPLOYING NGINX WITH DOCKER ON ROCKY LINUX
+--------------------------------------------------------------------------------------
+
+1- First step: Update repositories:
+
+sudo dnf update
+
+2- Second Step: Add docker repository:
+
+sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+3- Third step: Install the following packages:
+
+sudo dnf install docker-ce docker-ce-cli containerd.io
+
+4- Fourth Step: Enable the docker and containerd services:
+
+sudo systemctl enable --now docker containerd
+
+5- (Optional) Step 5: Run Docker without using sudo
+To avoid typing sudo with every command:
+
+sudo usermod -aG docker $USER
+
+Then, log out and log back in for the changes to take effect.
+
+6- Download a NGINX image from DOCKERHUB:
+
+docker pull nginx
+
+7- Create a container from the NGINX image:
+The host's port 8888 will be mapped to the container's port 80, and a persistent volume will be mounted from /home/website to /usr/share/nginx/html.
+
+-sudo mkdir docker-web
+
+-docker run -d -p 8888:80 -v /home/ahernandez/docker-web/:/usr/share/nginx/html/ --name my-nginx nginx
+
+🔹 -d: run in detached mode
+🔹 -p 8888:80: map port 8888 on host to port 80 in container
+🔹 -v: bind your local HTML folder to NGINX’s web root
+🔹 :ro: mounts as read-only (optional)
+
+8- Create a simple HTML page:
+
+The page should display the desired content, and it must be named index.html. Once created, copy it to the persistent volume directory (/home/website) so it can be served by the container.
+
+sudo nano index.html
+
+9- Then copy or move it to the volume directory:
+
+sudo mv index.html /home/docker-web/
+
+✅ 10- Test in your browser
+
+Visit:
+http://localhost:8888
+
+-Or use curl:
+curl http://localhost:8080
+
+You should see your NGINX welcome page.
